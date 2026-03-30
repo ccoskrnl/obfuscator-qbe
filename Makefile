@@ -4,24 +4,51 @@
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 
-COMMOBJ  = main.o util.o parse.o abi.o cfg.o mem.o ssa.o alias.o load.o \
-           copy.o fold.o gvn.o gcm.o simpl.o ifopt.o live.o spill.o rega.o \
-           emit.o
-AMD64OBJ = amd64/targ.o amd64/sysv.o amd64/isel.o amd64/emit.o amd64/winabi.o
-ARM64OBJ = arm64/targ.o arm64/abi.o arm64/isel.o arm64/emit.o
-RV64OBJ  = rv64/targ.o rv64/abi.o rv64/isel.o rv64/emit.o
-OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ)
 
-SRCALL   = $(OBJ:.o=.c)
+BUILD_DIR = ./build
+SRC_DIRS = . amd64 arm64 rv64
+SRCS = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
+OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(SRCS))
+
+TARGET = $(BUILD_DIR)/qbe
+
+# COMMOBJ  = main.o util.o parse.o abi.o cfg.o mem.o ssa.o alias.o load.o \
+#            copy.o fold.o gvn.o gcm.o simpl.o ifopt.o live.o spill.o rega.o \
+#            emit.o
+# AMD64OBJ = amd64/targ.o amd64/sysv.o amd64/isel.o amd64/emit.o amd64/winabi.o
+# ARM64OBJ = arm64/targ.o arm64/abi.o arm64/isel.o arm64/emit.o
+# RV64OBJ  = rv64/targ.o rv64/abi.o rv64/isel.o rv64/emit.o
+# OBJ      = $(COMMOBJ) $(AMD64OBJ) $(ARM64OBJ) $(RV64OBJ)
+
+SRCALL   = $(OBJS:.o=.c)
 
 CC       = cc
 CFLAGS   = -std=c99 -g -Wall -Wextra -Wpedantic
 
-qbe: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $@
+$(TARGET): $(OBJS)
+	@mkdir -p $(@D)
+	@echo "	Linking objects to $@"
+	@$(CC) $(LDFLAGS) $(OBJS) -o $@
 
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+build/%.o: %.c
+	@mkdir -p $(@D)
+	@echo "	Compiling $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+build/amd64/%.o: amd64/%.c
+	@mkdir -p $(@D)
+	@echo "	Compiling $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+build/arm64/%.o: arm64/%.c
+	@mkdir -p $(@D)
+	@echo "	Compiling $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+build/rv64/%.o: rv64/%.c
+	@mkdir -p $(@D)
+	@echo "	Compiling $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ): all.h ops.h
 $(AMD64OBJ): amd64/all.h
@@ -64,7 +91,7 @@ uninstall:
 	rm -f "$(DESTDIR)$(BINDIR)/qbe"
 
 clean:
-	rm -f *.o */*.o qbe
+	@rm -vf $(OBJS) $(TARGET)
 
 clean-gen: clean
 	rm -f config.h

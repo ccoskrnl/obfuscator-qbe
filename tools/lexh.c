@@ -8,13 +8,14 @@
 
 char *tok[] = {
 
-	"add", "sub", "div", "rem", "udiv", "urem", "mul",
+	"add", "sub", "neg", "div", "rem", "udiv", "urem", "mul",
 	"and", "or", "xor", "sar", "shr", "shl", "stored",
 	"stores", "storel", "storew", "storeh", "storeb",
 	"load", "loadsw", "loaduw", "loadsh", "loaduh",
 	"loadsb", "loadub", "extsw", "extuw", "extsh",
 	"extuh", "extsb", "extub", "exts", "truncd",
-	"stosi", "dtosi", "swtof", "sltof", "cast", "copy",
+	"stosi", "dtosi", "stoui", "dtoui", "uwtof",
+	"ultof", "swtof", "sltof", "cast", "copy",
 	"alloc4", "alloc8", "alloc16", "culew", "cultw",
 	"cslew", "csltw", "csgtw", "csgew", "cugtw",
 	"cugew", "ceqw", "cnew", "culel", "cultl", "cslel",
@@ -22,12 +23,13 @@ char *tok[] = {
 	"ceql", "cnel", "cles", "clts", "cgts", "cges",
 	"cnes", "ceqs", "cos", "cuos", "cled", "cltd",
 	"cgtd", "cged", "cned", "ceqd", "cod", "cuod",
-	"vaarg", "vastart", "...", "env",
+	"vaarg", "vastart", "...", "env", "dbgloc",
 
-	"call", "phi", "jmp", "jnz", "ret", "export",
-	"function", "type", "data", "align", "l", "w",
-	"h", "b", "d", "s", "z", "loadw", "loadl", "loads",
-	"loadd", "alloc1", "alloc2",
+	"call", "phi", "jmp", "jnz", "ret", "hlt", "export",
+	"function", "type", "data", "section", "align", "dbgfile",
+	"blit", "l", "w", "sh", "uh", "h", "sb", "ub", "b",
+	"d", "s", "z", "loadw", "loadl", "loads", "loadd",
+	"alloc1", "alloc2", "thread", "common",
 
 };
 enum {
@@ -68,7 +70,7 @@ main()
 		th[i] = h;
 	}
 
-	for (i=0; 1<<i < Ntok; ++i);
+	for (i=9; 1<<i < Ntok; ++i);
 	M = 32 - i;
 
 	for (;; --M) {
